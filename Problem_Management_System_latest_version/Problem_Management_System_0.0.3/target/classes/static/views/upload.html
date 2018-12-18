@@ -1,0 +1,35 @@
+<script type="text/javascript" src="js/upload-jquery.js"></script>
+<center>
+<form id="form" enctype="multipart/form-data">
+    图片上传:<input type="file" id="image_input" name="image_input" onchange="upload()"/>
+</form>
+<div id="imgDiv"></div>
+<p>名字:<input type="text" id="image_name"/></p>
+<p>系别:<select size="1" id="image_classification">
+    <option selected value="">---请选择---</option>
+    <option value="NaturalScience">理学</option>
+    <option value="Literature">文学</option>
+    <option value="Engineering">工学</option>
+    <option value="Law">法学</option>
+</select></p>
+<p>专业:<select size="1" id="image_faculty">
+    <option selected value="">---请选择---</option>
+</select></p>
+<p>课程名:<select size="1" id="image_subject">
+    <option selected value="">---请选择---</option>
+</select></p>
+<p>问题类型:<select size="1" id="image_question">
+    <option selected value="">---请选择---</option>
+    <option value="FillBlank">填空题</option>
+    <option value="Proof">证明题</option>
+    <option value="Choice">选择题</option>
+</select></p>
+<p>问题难度:<select size="1" id="image_difficulty">
+    <option selected value="">---请选择---</option>
+    <option value="1">基础</option>
+    <option value="2">提高</option>
+    <option value="3">挑战</option>
+</select></p>
+
+<button id="button" onclick="Imagesave()">确认保存</button>
+</center>

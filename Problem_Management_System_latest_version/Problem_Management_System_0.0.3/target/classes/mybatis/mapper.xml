@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.SilverBullet.Problem_Management_System_0_0_1.Mapper.mapper">
+
+    <resultMap id="userInfoList" type="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.UserInfo">
+        <id column="id" property="id" />
+        <result column="joinTime" property="joinTime" />
+        <result column="name" property="name" />
+    </resultMap>
+
+    <resultMap id="problemList" type="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.ProblemInfo">
+        <id column="pid" property="pid" />
+        <result column="difficulty" property="difficulty" />
+    </resultMap>
+
+    <resultMap id="deletedUserList" type="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.UserDeleted">
+        <id column="id" property="id"/>
+        <id column="deleteTime" property="deleteTime"/>
+        <result column="name" property="name"/>
+    </resultMap>
+
+    <select id="sqlById" resultType="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.UserLogin">
+        SELECT id, password, authority from user WHERE id = #{0};
+    </select>
+
+    <select id="userExist" resultType="String">
+        SELECT id from user WHERE id = #{0};
+    </select>
+
+    <insert id="userRegister">
+        INSERT INTO user (id, password, joinTime, name, authority)
+        VALUES(#{id}, #{password}, #{joinTime}, #{name}, #{authority});
+    </insert>
+
+    <select id="userInfo" resultType="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.User">
+        SELECT id, joinTime, name, password, authority, online from user WHERE id = #{0};
+    </select>
+
+    <select id="userListSumGet" resultType="int">
+        SELECT COUNT(id) FROM user WHERE authority != 'A';
+    </select>
+
+    <select id="userListSelect" resultMap="userInfoList">
+        SELECT id, name, joinTime FROM user WHERE authority != 'A';
+    </select>
+
+
+    
+    <update id="userUpdate" parameterType="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.UserUpdate">
+        UPDATE user SET password = #{password}, name = #{name}
+                    WHERE id = #{id};
+    </update>
+
+    <select id="userOnlineNum" resultType="int">
+        select count(*) FROM user where online = 1;
+    </select>
+
+    <update id="userOnline">
+        UPDATE user SET online = 1 WHERE id = #{0} and authority = 'A';
+    </update>
+
+    <update id="userLogout" parameterType="String">
+        UPDATE user SET online = 0 WHERE id = #{0};
+    </update>
+    
+    <delete id="userDelete">
+        DELETE FROM user WHERE id = #{0};
+    </delete>
+
+    <select id="deletedUserListSumGet" resultType="int">
+        SELECT COUNT(id) FROM deleteduser;
+    </select>
+
+    <select id="deletedUserListSelect" resultMap="deletedUserList">
+        SELECT id, name, deletetime FROM deleteduser;
+    </select>
+    
+    <insert id="deletedUserInsert">
+        INSERT INTO deleteduser (id, password, joinTime, name, authority, handleId, deleteTime)
+                    VALUES (#{id}, #{password}, #{joinTime}, #{name}, #{authority}, #{handleId}, #{deleteTime});
+    </insert>
+
+    <select id="userDeletedSelect" parameterType="String" resultType="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.UserDelete">
+        SELECT * FROM deleteduser WHERE id = #{id};
+    </select>
+
+    <delete id="userDeletedDelete" parameterType="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.UserRecover">
+        DELETE FROM deleteduser WHERE id = #{id};
+    </delete>
+
+    <insert id="userRecover" parameterType="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.UserDelete">
+        INSERT INTO user (id, password, joinTime, name, authority)
+        VALUES(#{id}, #{password}, #{joinTime}, #{name}, #{authority});
+    </insert>
+
+    <select id="problemListSumGet" parameterType="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.ProblemCondition" resultType="int">
+        SELECT COUNT(pid) FROM problem
+        <where>
+            <if test="classification != 'All'">
+                and classification = #{classification}
+            </if>
+            <if test="faculty != 'All'">
+                and faculty = #{faculty}
+            </if>
+            <if test="subject != 'All'">
+                and subject = #{subject}
+            </if>
+            <if test="problemType != 'All'">
+                and question = #{problemType}
+            </if>
+        </where>
+    </select>
+
+    <select id="problemListSelectByProblemCondition" parameterType="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.ProblemCondition" resultMap="problemList">
+        SELECT pid, difficulty from problem
+        <where>
+            <if test="classification != 'All'">
+                and classification = #{classification}
+            </if>
+            <if test="faculty != 'All'">
+                and faculty = #{faculty}
+            </if>
+            <if test="subject != 'All'">
+                and subject = #{subject}
+            </if>
+            <if test="problemType != 'All'">
+                and question = #{problemType}
+            </if>
+        </where>
+    </select>
+
+    <select id="problemListSelectByPidList" resultMap="problemList">
+        SELECT pid, difficulty from problem WHERE pid in
+        <foreach collection="list" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+    
+    <select id="problemIdSelect" resultType="String">
+        SELECT pid FROM problem where pid = #{pid};
+    </select>
+    
+    <insert id="problemInsert">
+        INSERT INTO problem (pid, classification, faculty, subject , question , difficulty)
+                    VALUES (#{pid}, #{classification}, #{faculty}, #{subject},#{question},#{difficulty});
+    </insert>
+    
+    <insert id="problemListInsert" parameterType="List">
+        INSERT INTO problem (pid, cid, chapter, difficulty)
+                    VALUES
+                    <foreach collection="list" item="item" index="index" separator=",">
+                        (#{item.pid}, #{item.cid}, #{item.chapter}, #{item.difficulty})
+                    </foreach>
+    </insert>
+
+    <delete id="problemDelete">
+        DELETE FROM problem WHERE pid = #{0};
+    </delete>
+
+    <delete id="problemListDelete" parameterType="List">
+        DELETE FROM problem WHERE
+        <foreach collection="list" item="item" index="index" separator=",">
+            pid = #{item}
+        </foreach>
+    </delete>
+
+    <update id="problemUpdate">
+        UPDATE problem SET cid = #{1}, chapter = #{2}, difficulty = #{3}
+                    WHERE pid = #{0};
+    </update>
+
+    <insert id="problemUpdateRecorder">
+
+    </insert>
+
+    <insert id="problemUpdateListRecorder">
+        
+    </insert>
+
+    <select id="problemUpdateInfoByPid">
+
+    </select>
+
+    <select id="problemUpdateInfoById">
+
+    </select>
+
+    <select id="problemUpdateInfoByDate">
+
+    </select>
+    
+    <insert id="courseInfoInsert">
+
+    </insert>
+    
+    <insert id="courseInfoListInsert">
+
+    </insert>
+
+    <delete id="courseInfoDelete">
+        
+    </delete>
+    
+    <delete id="courseInfoListDelete">
+
+    </delete>
+
+    <update id="courseInfoUpdate">
+
+    </update>
+
+    <update id="courseInfoListUpdate">
+
+    </update>
+    
+    <select id="getCourseInfoList">
+
+    </select>
+    
+    <insert id="trolleyInsert">
+        INSERT INTO trolley (id, pid) VALUES (#{id}, #{pid});
+    </insert>
+    
+    <select id="trolleyProblemExist" parameterType="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.TrolleyPicking" resultType="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.TrolleyPicking">
+        SELECT id, pid FROM trolley WHERE id = #{id} and pid = #{pid};
+    </select>
+    
+    <delete id="trolleyDelete">
+        DELETE FROM trolley WHERE id = #{id} and pid = #{pid};
+    </delete>
+
+    <select id="trolleyProblemListSumGet" parameterType="com.SilverBullet.Problem_Management_System_0_0_1.BaseClass.PersonalTrolley" resultType="int">
+            SELECT COUNT(pid) FROM trolley WHERE id = #{id};
+    </select>
+
+    <select id="trolleyProblemListSelect" parameterType="String" resultType="String">
+        SELECT pid from trolley WHERE id = #{id};
+    </select>
+
+    <select id="cnameGetByCid" parameterType="String" resultType="String">
+        SELECT cname FROM course WHERE cid = #{cid};
+    </select>
+
+    <select id="tempIdSelect" resultType="String">
+        SELECT pid FROM temp where pid = #{pid};
+    </select>
+
+    <insert id="tempInsert">
+        INSERT INTO temp (pid, classification, faculty, subject , question , difficulty)
+        VALUES (#{pid}, #{classification}, #{faculty}, #{subject},#{question},#{difficulty});
+    </insert>
+
+    <select id="getAllTemp" resultMap="problemList">
+        SELECT * FROM temp;
+    </select>
+
+    <select id="getTemp" resultMap="problemList">
+        SELECT * FROM temp where pid = #{pid};
+    </select>
+
+    <delete id="DeleteTemp">
+        DELETE FROM temp WHERE pid = #{pid};
+    </delete>
+</mapper>
